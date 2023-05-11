@@ -1,0 +1,53 @@
+package jdbc.controller;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class HuespedController {
+	public void modificar(Integer id, String nombre, String Aaellido, LocalDate fechaNacimiento, String nacionalidad, String telefono, String idReserva) {
+
+	}
+
+	public void eliminar(Integer id) {
+
+	}
+
+	public List<Map<String,String>> listar() throws SQLException {
+		Connection con = DriverManager.getConnection("jdbc:mysql://localhost/hotel?useTimeZone=true&serverTimeZone=UTC",
+				"root", "Nikola1080");
+		Statement statement = con.createStatement();
+
+		Boolean result = statement.execute("SELECT id, nombre, apellido, fechaNacimiento, nacionalidad, telefono, idreserva FROM HUESPEDES");
+
+		ResultSet resultSet = statement.getResultSet();
+
+		List<Map<String, String>> resultado = new ArrayList<>();
+
+		while (resultSet.next()) {
+			Map<String, String> fila = new HashMap<>();
+			fila.put("ID", String.valueOf(resultSet.getInt("id")));
+			fila.put("Nombre", resultSet.getString("nombre"));
+			fila.put("Apellido", resultSet.getString("apellido"));
+			fila.put("FechaNacimiento", String.valueOf(resultSet.getDate("fechaNacimiento")));
+			fila.put("Nacionalidad", resultSet.getString("nacionalidad"));
+			fila.put("Telefono", resultSet.getString("telefono"));
+			fila.put("IdReserva", String.valueOf(resultSet.getInt("idreserva")));
+			
+			resultado.add(fila);
+			
+		}
+
+		con.close();
+		return resultado;
+
+	}
+
+}

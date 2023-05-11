@@ -1,30 +1,32 @@
-package views;
+ package views;
 
-import java.awt.EventQueue;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.JButton;
-import javax.swing.ImageIcon;
 import java.awt.Color;
-import java.awt.SystemColor;
-import javax.swing.JLabel;
+import java.awt.EventQueue;
 import java.awt.Font;
-import java.awt.event.ActionListener;
-import java.util.List;
-import java.awt.event.ActionEvent;
-import javax.swing.JTabbedPane;
 import java.awt.Toolkit;
-import javax.swing.SwingConstants;
-import javax.swing.JSeparator;
-import javax.swing.ListSelectionModel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
+
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+
+import jdbc.controller.HuespedController;
+import jdbc.controller.ReservaController;
 
 @SuppressWarnings("serial")
 public class Busqueda extends JFrame {
@@ -37,6 +39,8 @@ public class Busqueda extends JFrame {
 	private DefaultTableModel modeloHuesped;
 	private JLabel labelAtras;
 	private JLabel labelExit;
+	private ReservaController reservaController;
+	private HuespedController huespedController;
 	int xMouse, yMouse;
 
 	/**
@@ -58,7 +62,12 @@ public class Busqueda extends JFrame {
 	/**
 	 * Create the frame.
 	 */
+	
 	public Busqueda() {
+		
+		this.reservaController = new ReservaController();
+		this.huespedController = new HuespedController();
+		
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Busqueda.class.getResource("/imagenes/lupa2.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 910, 571);
@@ -101,6 +110,9 @@ public class Busqueda extends JFrame {
 		modelo.addColumn("Fecha Check Out");
 		modelo.addColumn("Valor");
 		modelo.addColumn("Forma de Pago");
+		
+		cargarTablaReservas();
+
 		JScrollPane scroll_table = new JScrollPane(tbReservas);
 		panel.addTab("Reservas", new ImageIcon(Busqueda.class.getResource("/imagenes/reservado.png")), scroll_table, null);
 		scroll_table.setVisible(true);
@@ -117,6 +129,9 @@ public class Busqueda extends JFrame {
 		modeloHuesped.addColumn("Nacionalidad");
 		modeloHuesped.addColumn("Telefono");
 		modeloHuesped.addColumn("Número de Reserva");
+		
+		cargarTablaHuespedes();
+		
 		JScrollPane scroll_tableHuespedes = new JScrollPane(tbHuespedes);
 		panel.addTab("Huéspedes", new ImageIcon(Busqueda.class.getResource("/imagenes/pessoas.png")), scroll_tableHuespedes, null);
 		scroll_tableHuespedes.setVisible(true);
@@ -262,6 +277,9 @@ public class Busqueda extends JFrame {
 		setResizable(false);
 	}
 	
+
+
+
 //Código que permite mover la ventana por la pantalla según la posición de "x" y "y"
 	 private void headerMousePressed(java.awt.event.MouseEvent evt) {
 	        xMouse = evt.getX();
@@ -273,4 +291,36 @@ public class Busqueda extends JFrame {
 	        int y = evt.getYOnScreen();
 	        this.setLocation(x - xMouse, y - yMouse);
 }
+	    
+	    private void cargarTablaReservas() {
+			List<Map<String, String>> reservas;
+			try {
+				reservas = this.reservaController.listar();
+				try {
+					reservas.forEach(reserva->modelo.addRow(new Object[] {
+							reserva.get("ID"), reserva.get("FechaEntrada"), reserva.get("FechaSalida"), reserva.get("Valor"), reserva.get("FormaPago")}));
+				}catch (Exception e){
+					throw e;
+				}
+			} catch (SQLException e) {
+			throw new RuntimeException(e);
+			}
+			
+		}
+	    
+	    private void cargarTablaHuespedes() {
+	    	List<Map<String, String>> huespedes;
+			try {
+				huespedes = this.huespedController.listar();
+				try {
+					huespedes.forEach(huesped->modeloHuesped.addRow(new Object[] {
+							huesped.get("ID"), huesped.get("Nombre"), huesped.get("Apellido"), huesped.get("FechaNacimiento"), huesped.get("Nacionalidad"),huesped.get("Telefono"),huesped.get("IdReserva")}));
+				}catch (Exception e){
+					throw e;
+				}
+			} catch (SQLException e) {
+			throw new RuntimeException(e);
+			}
+			
+		}
 }
