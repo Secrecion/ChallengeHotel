@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import jdbc.factory.ConnectionFactory;
+
 public class HuespedController {
 	public void modificar(Integer id, String nombre, String Aaellido, LocalDate fechaNacimiento, String nacionalidad, String telefono, String idReserva) {
 
@@ -21,8 +23,8 @@ public class HuespedController {
 	}
 
 	public List<Map<String,String>> listar() throws SQLException {
-		Connection con = DriverManager.getConnection("jdbc:mysql://localhost/hotel?useTimeZone=true&serverTimeZone=UTC",
-				"root", "Nikola1080");
+		Connection con= new ConnectionFactory().recuperarConexion();
+		
 		Statement statement = con.createStatement();
 
 		Boolean result = statement.execute("SELECT id, nombre, apellido, fechaNacimiento, nacionalidad, telefono, idreserva FROM HUESPEDES");

@@ -37,6 +37,7 @@ public class RegistroHuesped extends JFrame {
 	private JComboBox<Format> txtNacionalidad;
 	private JLabel labelExit;
 	private JLabel labelAtras;
+	private static Integer idDevuelto;
 	int xMouse, yMouse;
 
 	/**
@@ -46,7 +47,7 @@ public class RegistroHuesped extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					RegistroHuesped frame = new RegistroHuesped();
+					RegistroHuesped frame = new RegistroHuesped(idDevuelto);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -58,7 +59,7 @@ public class RegistroHuesped extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public RegistroHuesped() {
+	public RegistroHuesped(Integer idDevuelto) {
 		
 		setIconImage(Toolkit.getDefaultToolkit().getImage(RegistroHuesped.class.getResource("/imagenes/lOGO-50PX.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -211,6 +212,7 @@ public class RegistroHuesped extends JFrame {
 		txtNreserva.setBackground(Color.WHITE);
 		txtNreserva.setBorder(javax.swing.BorderFactory.createEmptyBorder());
 		contentPane.add(txtNreserva);
+		txtNreserva.setText(String.valueOf(idDevuelto));
 		
 		JSeparator separator_1_2 = new JSeparator();
 		separator_1_2.setBounds(560, 170, 289, 2);
