@@ -34,12 +34,27 @@ public class ReservaController {
 		return idDevuelto;
 	}
 
-	public void modificar(Integer id, LocalDate fechaEntrada, LocalDate fechaSalida, String formaPago) {
+	public int modificar(Reserva reserva) throws SQLException {
+		Connection con = new ConnectionFactory().recuperarConexion();
+		Statement statement = con.createStatement();
+		System.out.println("inicia conexion");
+		statement.execute("UPDATE RESERVAS SET fechaentrada='" + reserva.getFechaEntrada() + "', fechasalida='"
+				+ reserva.getFechaSalida() + "', valor='" + reserva.getValor() + "', formapago='" + reserva.getFormaPago()
+				+ "' WHERE IDRESERVAS=" + reserva.getIdReserva() + " ;");
 
+		int updateCount = statement.getUpdateCount();
+		con.close();
+		return updateCount;
 	}
 
-	public void eliminar(Integer id) {
+	public Integer eliminar(Integer id) throws SQLException {
+		Connection con = new ConnectionFactory().recuperarConexion();
+		Statement statement = con.createStatement();
 
+		statement.execute("DELETE FROM RESERVAS WHERE IDRESERVAS=" + id + ";");
+		int updateCount = statement.getUpdateCount();
+		con.close();
+		return updateCount;
 	}
 
 	public List<Map<String, String>> listar() throws SQLException {
@@ -69,15 +84,16 @@ public class ReservaController {
 		return resultado;
 
 	}
-	
+
 	public List<Map<String, String>> listarCoincidencia(String id) throws SQLException {
 		Connection con = new ConnectionFactory().recuperarConexion();
 		Statement statement = con.createStatement();
-		
+
 		List<Map<String, String>> resultado = new ArrayList<>();
-		
-		Boolean result = statement
-				.execute("SELECT idreservas, fechaentrada, fechasalida, valor, formapago FROM RESERVAS where idreservas="+id+";");
+
+		Boolean result = statement.execute(
+				"SELECT idreservas, fechaentrada, fechasalida, valor, formapago FROM RESERVAS where idreservas=" + id
+						+ ";");
 
 		ResultSet resultSet = statement.getResultSet();
 
@@ -97,13 +113,12 @@ public class ReservaController {
 		return resultado;
 
 	}
-	
-	 public static boolean isNumeric(String s)
-	    {
-	        if (s == null || s.equals("")) {
-	            return false;
-	        }
-	 
-	        return s.chars().allMatch(Character::isDigit);
-	    }
+
+	public static boolean isNumeric(String s) {
+		if (s == null || s.equals("")) {
+			return false;
+		}
+
+		return s.chars().allMatch(Character::isDigit);
+	}
 }

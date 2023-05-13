@@ -37,13 +37,28 @@ public class HuespedController {
 		return idDevuelto;
 	}
 
-	public void modificar(Integer id, String nombre, String Aaellido, LocalDate fechaNacimiento, String nacionalidad,
-			String telefono, String idReserva) {
+	public Integer modificar(Huesped huesped) throws SQLException {
+		Connection con = new ConnectionFactory().recuperarConexion();
+		Statement statement = con.createStatement();
+		System.out.println("inicia conexion");
+		statement.execute("UPDATE HUESPEDES SET nombre='" + huesped.getNombre() + "', apellido='"
+				+ huesped.getApellido() + "', fechanacimiento='" + huesped.getFechaNacimiento() + "', nacionalidad='" + huesped.getNacionalidad() + "', telefono='" + huesped.getTelefono()
+				+ "' WHERE ID=" + huesped.getId() + " ;");
+
+		int updateCount = statement.getUpdateCount();
+		con.close();
+		return updateCount;
 
 	}
 
-	public void eliminar(Integer id) {
+	public Integer eliminar(Integer id) throws SQLException {
+		Connection con = new ConnectionFactory().recuperarConexion();
+		Statement statement = con.createStatement();
 
+		statement.execute("DELETE FROM HUESPEDES WHERE ID=" + id + ";");
+		int updateCount = statement.getUpdateCount();
+		con.close();
+		return updateCount;
 	}
 
 	public List<Map<String, String>> listar() throws SQLException {

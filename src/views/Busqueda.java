@@ -7,13 +7,16 @@ import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -27,6 +30,8 @@ import javax.swing.table.DefaultTableModel;
 
 import jdbc.controller.HuespedController;
 import jdbc.controller.ReservaController;
+import jdbc.modelo.Huesped;
+import jdbc.modelo.Reserva;
 
 @SuppressWarnings("serial")
 public class Busqueda extends JFrame {
@@ -232,10 +237,12 @@ public class Busqueda extends JFrame {
 				if (Busqueda.txtBuscar.getText() != null && Busqueda.txtBuscar.getText() != null) {
 					if (isNumeric(Busqueda.txtBuscar.getText())) {
 						// scroll_table.setVisible(true);
+						panel.setSelectedIndex(0);
 						cargarTablaReservas(Busqueda.txtBuscar.getText());
 
 					} else {
 						// scroll_tableHuespedes.setVisible(true);
+						panel.setSelectedIndex(1);
 						cargarTablaHuespedes(Busqueda.txtBuscar.getText());
 					}
 				}
@@ -263,6 +270,19 @@ public class Busqueda extends JFrame {
 		contentPane.add(btnEditar);
 
 		JLabel lblEditar = new JLabel("EDITAR");
+		lblEditar.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if(panel.getSelectedIndex()==0) {
+					editarReserva();
+				}else if(panel.getSelectedIndex()==1) {
+					editarHuesped();
+				};
+				
+			}
+
+			
+		});
 		lblEditar.setHorizontalAlignment(SwingConstants.CENTER);
 		lblEditar.setForeground(Color.WHITE);
 		lblEditar.setFont(new Font("Roboto", Font.PLAIN, 18));
@@ -277,6 +297,18 @@ public class Busqueda extends JFrame {
 		contentPane.add(btnEliminar);
 
 		JLabel lblEliminar = new JLabel("ELIMINAR");
+		lblEliminar.addMouseListener(new MouseAdapter() {
+			
+			public void mouseClicked(MouseEvent e) {
+				if(panel.getSelectedIndex()==0) {
+					eliminarReserva();
+				}else if(panel.getSelectedIndex()==1) {
+					eliminarHuesped();
+				};
+				
+				
+			}
+		});
 		lblEliminar.setHorizontalAlignment(SwingConstants.CENTER);
 		lblEliminar.setForeground(Color.WHITE);
 		lblEliminar.setFont(new Font("Roboto", Font.PLAIN, 18));
@@ -298,6 +330,8 @@ public class Busqueda extends JFrame {
 	}
 
 	private void cargarTablaReservas(String idapellido) {
+		
+		
 
 		int rowCount = modelo.getRowCount();
 
@@ -343,7 +377,147 @@ public class Busqueda extends JFrame {
 		}
 
 	}
+	private boolean tieneFilaElegidaReservas() {
+		return tbReservas.getSelectedRowCount() == 0 || tbReservas.getSelectedColumnCount() == 0;
+	}
+	
+	private void eliminarReserva() {
+		
+		if (tieneFilaElegidaReservas()) {
+			JOptionPane.showMessageDialog(this, "Por favor, elije un item");
+			return;
+		}
+		
+		Optional.ofNullable(modelo.getValueAt(tbReservas.getSelectedRow(), tbReservas.getSelectedColumn()))
+		.ifPresentOrElse(fila->{
+			Integer id= Integer.valueOf(modelo.getValueAt(tbReservas.getSelectedRow(), 0).toString());
+			
+			int cantidadEliminada;
+			try {
+				cantidadEliminada= this.reservaController.eliminar(id);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				throw new RuntimeException();
+			}
+			System.out.println(cantidadEliminada);
+			modelo.removeRow(tbReservas.getSelectedRow());
+			JOptionPane.showMessageDialog(this,cantidadEliminada+ " item(s) eliminado con éxito");
+			
+		}, ()-> JOptionPane.showMessageDialog(this,"Por favor elige un item"));
+	}
 
+	private boolean tieneFilaElegidaHuespedes() {
+		return tbHuespedes.getSelectedRowCount() == 0 || tbHuespedes.getSelectedColumnCount() == 0;
+	}
+	
+	private void eliminarHuesped() {
+		
+		if (tieneFilaElegidaHuespedes()) {
+			JOptionPane.showMessageDialog(this, "Por favor, elije un item");
+			return;
+		}
+		
+		Optional.ofNullable(modeloHuesped.getValueAt(tbHuespedes.getSelectedRow(), tbHuespedes.getSelectedColumn()))
+		.ifPresentOrElse(fila->{
+			Integer id= Integer.valueOf(modeloHuesped.getValueAt(tbHuespedes.getSelectedRow(), 0).toString());
+			
+			int cantidadEliminada;
+			try {
+				cantidadEliminada= this.huespedController.eliminar(id);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				throw new RuntimeException();
+			}
+			System.out.println(cantidadEliminada);
+			modeloHuesped.removeRow(tbHuespedes.getSelectedRow());
+			JOptionPane.showMessageDialog(this,cantidadEliminada + " item(s) eliminado con éxito");
+			
+		}, ()-> JOptionPane.showMessageDialog(this,"Por favor elige un item"));
+	}
+	
+	private void editarReserva() {
+		if (tieneFilaElegidaReservas()) {
+			JOptionPane.showMessageDialog(this, "Por favor, elije un item para editar");
+			return;
+		}
+		
+		Optional.ofNullable(modelo.getValueAt(tbReservas.getSelectedRow(), tbReservas.getSelectedColumn()))
+		.ifPresentOrElse(fila->{
+			Integer id= Integer.valueOf(modelo.getValueAt(tbReservas.getSelectedRow(), 0).toString());
+			
+			String dateEntrada=modelo.getValueAt(tbReservas.getSelectedRow(), 1).toString();
+			String dateSalida=modelo.getValueAt(tbReservas.getSelectedRow(), 2).toString();
+			
+			System.out.println(dateEntrada+" "+dateSalida);
+			Date fechaEntrada = java.sql.Date.valueOf(dateEntrada);
+			Date fechaSalida = java.sql.Date.valueOf(dateSalida);
+			String valor=modelo.getValueAt(tbReservas.getSelectedRow(), 3).toString();
+			String formaPago=modelo.getValueAt(tbReservas.getSelectedRow(), 4).toString();
+			
+			int cantidadEditada;
+			Reserva nuevaReserva=new Reserva(id,fechaEntrada, fechaSalida, valor,formaPago);
+			try {
+				cantidadEditada= this.reservaController.modificar(nuevaReserva);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				throw new RuntimeException();
+			}
+			System.out.println(cantidadEditada);
+			
+			int rowCount = modelo.getRowCount();
+
+			for (int i = rowCount - 1; i >= 0; i--) {
+				modelo.removeRow(i);
+			}
+			
+			JOptionPane.showMessageDialog(this,cantidadEditada+ " item(s) editado con éxito");
+			
+		}, ()-> JOptionPane.showMessageDialog(this,"Por favor elige un item"));
+		
+	}
+	
+	private void editarHuesped() {
+		if (tieneFilaElegidaHuespedes()) {
+			JOptionPane.showMessageDialog(this, "Por favor, elije un item para editar");
+			return;
+		}
+		
+		Optional.ofNullable(modeloHuesped.getValueAt(tbHuespedes.getSelectedRow(), tbHuespedes.getSelectedColumn()))
+		.ifPresentOrElse(fila->{
+			Integer id= Integer.valueOf(modeloHuesped.getValueAt(tbHuespedes.getSelectedRow(), 0).toString());
+			
+			String nombre=modeloHuesped.getValueAt(tbHuespedes.getSelectedRow(), 1).toString();
+			String apellido=modeloHuesped.getValueAt(tbHuespedes.getSelectedRow(), 2).toString();
+			String dateNacimiento=modeloHuesped.getValueAt(tbHuespedes.getSelectedRow(), 3).toString();
+			
+			Date fechaNacimiento = java.sql.Date.valueOf(dateNacimiento);
+			
+			String nacionalidad=modeloHuesped.getValueAt(tbHuespedes.getSelectedRow(), 4).toString();
+			String telefono =modeloHuesped.getValueAt(tbHuespedes.getSelectedRow(), 5).toString();
+			Integer idreserva=Integer.valueOf(modeloHuesped.getValueAt(tbHuespedes.getSelectedRow(), 6).toString());
+			
+			int cantidadEditada;
+			Huesped nuevoHuesped=new Huesped(id, nombre, apellido, fechaNacimiento ,nacionalidad, telefono, idreserva);
+			try {
+				cantidadEditada= this.huespedController.modificar(nuevoHuesped);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				throw new RuntimeException();
+			}
+			System.out.println(cantidadEditada);
+			
+			int rowCount = modeloHuesped.getRowCount();
+
+			for (int i = rowCount - 1; i >= 0; i--) {
+				modeloHuesped.removeRow(i);
+			}
+			
+			JOptionPane.showMessageDialog(this,cantidadEditada+ " item(s) editado con éxito");
+			
+		}, ()-> JOptionPane.showMessageDialog(this,"Por favor elige un item"));
+		
+	}
+	
 	public static boolean isNumeric(String s) {
 		if (s == null || s.equals("")) {
 			return false;
@@ -351,4 +525,5 @@ public class Busqueda extends JFrame {
 
 		return s.chars().allMatch(Character::isDigit);
 	}
+	
 }
