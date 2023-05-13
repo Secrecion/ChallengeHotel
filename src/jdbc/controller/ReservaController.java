@@ -1,3 +1,4 @@
+
 package jdbc.controller;
 
 import java.sql.Connection;
@@ -22,15 +23,15 @@ public class ReservaController {
 		statement.execute("INSERT INTO RESERVAS (fechaentrada, fechasalida, valor, formapago) VALUES ('"
 				+ reserva.getFechaEntrada() + "', '" + reserva.getFechaSalida() + "', '" + reserva.getValor() + "', '"
 				+ reserva.getFormaPago() + "');", Statement.RETURN_GENERATED_KEYS);
-		
+
 		ResultSet resultSet = statement.getGeneratedKeys();
-		Integer idDevuelto=0;
+		Integer idDevuelto = 0;
 		while (resultSet.next()) {
-			System.out.println(String.format("fue insertado : %d",resultSet.getInt(1)));
-			idDevuelto =resultSet.getInt(1);
+			System.out.println(String.format("fue insertado : %d", resultSet.getInt(1)));
+			idDevuelto = resultSet.getInt(1);
 		}
 		con.close();
-return idDevuelto;
+		return idDevuelto;
 	}
 
 	public void modificar(Integer id, LocalDate fechaEntrada, LocalDate fechaSalida, String formaPago) {
@@ -46,7 +47,7 @@ return idDevuelto;
 		Statement statement = con.createStatement();
 
 		Boolean result = statement
-				.execute("SELECT idreserva, fechaentrada, fechasalida, valor, formapago FROM RESERVAS");
+				.execute("SELECT idreservas, fechaentrada, fechasalida, valor, formapago FROM RESERVAS");
 
 		ResultSet resultSet = statement.getResultSet();
 
@@ -54,7 +55,7 @@ return idDevuelto;
 
 		while (resultSet.next()) {
 			Map<String, String> fila = new HashMap<>();
-			fila.put("ID", String.valueOf(resultSet.getInt("idreserva")));
+			fila.put("ID", String.valueOf(resultSet.getInt("idreservas")));
 			fila.put("FechaEntrada", String.valueOf(resultSet.getDate("fechaentrada")));
 			fila.put("FechaSalida", String.valueOf(resultSet.getDate("fechasalida")));
 			fila.put("Valor", String.valueOf(resultSet.getDouble("valor")));
@@ -68,4 +69,41 @@ return idDevuelto;
 		return resultado;
 
 	}
+	
+	public List<Map<String, String>> listarCoincidencia(String id) throws SQLException {
+		Connection con = new ConnectionFactory().recuperarConexion();
+		Statement statement = con.createStatement();
+		
+		List<Map<String, String>> resultado = new ArrayList<>();
+		
+		Boolean result = statement
+				.execute("SELECT idreservas, fechaentrada, fechasalida, valor, formapago FROM RESERVAS where idreservas="+id+";");
+
+		ResultSet resultSet = statement.getResultSet();
+
+		while (resultSet.next()) {
+			Map<String, String> fila = new HashMap<>();
+			fila.put("ID", String.valueOf(resultSet.getInt("idreservas")));
+			fila.put("FechaEntrada", String.valueOf(resultSet.getDate("fechaentrada")));
+			fila.put("FechaSalida", String.valueOf(resultSet.getDate("fechasalida")));
+			fila.put("Valor", String.valueOf(resultSet.getDouble("valor")));
+			fila.put("FormaPago", resultSet.getString("formapago"));
+
+			resultado.add(fila);
+
+		}
+
+		con.close();
+		return resultado;
+
+	}
+	
+	 public static boolean isNumeric(String s)
+	    {
+	        if (s == null || s.equals("")) {
+	            return false;
+	        }
+	 
+	        return s.chars().allMatch(Character::isDigit);
+	    }
 }

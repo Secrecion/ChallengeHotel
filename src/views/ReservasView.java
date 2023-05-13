@@ -367,15 +367,12 @@ public class ReservasView extends JFrame {
 		Date fechaEntrada = java.sql.Date.valueOf(dateEntrada);
 		Date fechaSalida = java.sql.Date.valueOf(dateSalida);
 
-		System.out.println(fechaEntrada + " " + fechaSalida + " " + valor + " " + formaPago+ dateEntrada);
-
 		Reserva nuevaReserva = new Reserva(fechaEntrada, fechaSalida, valor, formaPago);
 		
 		Integer idDevuelto=0;
 		try {
 			idDevuelto=reservaController.guardarReserva(nuevaReserva);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			throw new RuntimeException(e);
 		}
 		JOptionPane.showMessageDialog(contentPane, "Reserva Guardada con Exito ");

@@ -18,7 +18,6 @@ public Reserva(Integer idReserva, Date fechaEntrada, Date fechaSalida, String va
 }
 
 public Reserva(Date fechaEntrada, Date fechaSalida, String valor, String formaPago) {
-	super();
 	this.fechaEntrada = fechaEntrada;
 	this.fechaSalida = fechaSalida;
 	this.valor = valor;
