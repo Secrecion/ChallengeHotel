@@ -339,12 +339,12 @@ public class Busqueda extends JFrame {
 			modelo.removeRow(i);
 		}
 
-		List<Map<String, String>> reservas;
+		List<Reserva> reservas;
 		try {
 			reservas = this.reservaController.listarCoincidencia(idapellido);
 			try {
-				reservas.forEach(reserva -> modelo.addRow(new Object[] { reserva.get("ID"), reserva.get("FechaEntrada"),
-						reserva.get("FechaSalida"), reserva.get("Valor"), reserva.get("FormaPago") }));
+				reservas.forEach(reserva -> modelo.addRow(new Object[] { reserva.getIdReserva(), reserva.getFechaEntrada(),
+						reserva.getFechaSalida(), reserva.getValor(), reserva.getFormaPago() }));
 			} catch (Exception e) {
 				throw e;
 			}
@@ -362,13 +362,13 @@ public class Busqueda extends JFrame {
 			modeloHuesped.removeRow(i);
 		}
 
-		List<Map<String, String>> huespedes;
+		List<Huesped> huespedes;
 		try {
 			huespedes = this.huespedController.listarCoincidencia(idapellido);
 			try {
-				huespedes.forEach(huesped -> modeloHuesped.addRow(new Object[] { huesped.get("ID"),
-						huesped.get("Nombre"), huesped.get("Apellido"), huesped.get("FechaNacimiento"),
-						huesped.get("Nacionalidad"), huesped.get("Telefono"), huesped.get("IdReserva") }));
+				huespedes.forEach(huesped -> modeloHuesped.addRow(new Object[] { huesped.getId(),
+						huesped.getNombre(), huesped.getApellido(), huesped.getFechaNacimiento(),
+						huesped.getNacionalidad(), huesped.getTelefono(), huesped.getIdReserva() }));
 			} catch (Exception e) {
 				throw e;
 			}
