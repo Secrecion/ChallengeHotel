@@ -5,11 +5,12 @@ import java.util.List;
 import java.util.Map;
 
 import jdbc.controller.ReservaController;
+import jdbc.modelo.Reserva;
 
 public class TestReservaController {
 
 	public static void main(String[] args) throws SQLException {
-	List<Map<String, String>> chequeo = new ReservaController().listar();
+	List<Reserva> chequeo = new ReservaController().listarCoincidencia("1");
 	System.out.println(chequeo);
 	
 	}
